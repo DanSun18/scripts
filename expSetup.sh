@@ -33,17 +33,17 @@ sudo ${SYSTEM_SCRIPT_DIR}/turbo-boost.sh disable
 CPU_FREQUENCY=""
 if [ -z "$2" ]
   then
-    CPU_FREQUENCY=DEFAULT_FREQUENCY
+    CPU_FREQUENCY=${DEFAULT_FREQUENCY}
   else
     CPU_FREQUENCY="$2"
 fi
 sudo cpupower frequency-set -f 2.10GHz
 echo "Experiment Setup:"
-echo "All logical cores are turned on"
-echo "Logical cores ${CPU_TO_TURNOFF} are turned off"
-echo "C states are disabled"
-echo "Turboboost turned off"
-echo "Core frequency set to ${CPU_FREQUENCY}"
+echo -e  "\tAll logical cores are turned on"
+echo -e "\tLogical cores ${CPU_TO_TURNOFF} are turned off"
+echo -e "\tC states are disabled"
+echo -e "\tTurboboost turned off"
+echo -e "\tCore frequency set to ${CPU_FREQUENCY}"
 echo "----------"
 echo "Specify cores to turn off and core frequency using this format"
-echo "${BASH_SOURCE[0]} [ CPU_TO_TURNOFF CORE_FREQUENCY ]
+echo -e "\t${BASH_SOURCE[0]} [ CPU_TO_TURNOFF CORE_FREQUENCY ]"
