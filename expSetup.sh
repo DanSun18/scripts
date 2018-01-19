@@ -44,3 +44,6 @@ echo "Logical cores ${CPU_TO_TURNOFF} are turned off"
 echo "C states are disabled"
 echo "Turboboost turned off"
 echo "Core frequency set to ${CPU_FREQUENCY}"
+echo "----------"
+echo "Specify cores to turn off and core frequency using this format"
+echo "${BASH_SOURCE[0]} [ CPU_TO_TURNOFF CORE_FREQUENCY ]
