@@ -4,28 +4,27 @@
 #pin this to a core that is different from client and server
 #sudo another command before executing to allow smooth operation
 
+# First argument is the number of threads for server
+# Second argument is QPS
+
 source  /home/ds318/scripts/bash_helpers/readPathsConfiguration.sh
+source /home/ds318/scripts/bash_helpers/checkInputs.sh 2 "$#" "SERVER_THREADS, QPS" 
 
 if ! [ -d ${ONLINE_HOME} ]
-then
-        echo "ONLINE_HOME path ${ONLINE_HOME} does not exist"
-        exit 1
+	then
+	echo "ONLINE_HOME path ${ONLINE_HOME} does not exist"
+	exit 1
 fi
 
 if ! [ -d ${SCRIPT_HOME} ]
-then
-        echo "SCRIPT_HOME path ${SCRIPT_HOME} does not exist"
-        exit 1
+	then
+	echo "SCRIPT_HOME path ${SCRIPT_HOME} does not exist"
+	exit 1
 fi
-
-
-
-echo "Usage:"
-echo "${BASH_SOURCE[0]} [SPARK_APP]"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-SERVER_THREADS=1
+# constants
 # SERVER_CORES=0-7
 SERVER_MACHINE=bcl15-cmp-00.egr.duke.edu
 LAUNCH_SERVER_SCRIPT_CORE=0
@@ -35,92 +34,33 @@ LAUNCH_CLIENT_SCRIPT_CORE=4
 CLIENT_CORES=5-7
 CLIENT_THREADS=1
 
-# SPARK_APP=$1
-# SPARK_CORES=0-4,8-12
+#inputs 
 
-# if [ -z ${SPARK_APP} ]
-# then
-# 	if ! [ -d ${SPARK_SCRIPTS_HOME} ]
-# 	then
-#         echo "SCRIPT_HOME path ${SPARK_SCRIPTS_HOME} does not exist"
-#         exit 1
-# 	fi
-# fi
+SERVER_THREADS=$1
+QPS=$2
 
-## adopted from https://stackoverflow.com/questions/8880603/loop-through-an-array-of-strings-in-bash
-## declare an array variable
-# declare -a CORE_FREQUENCYS=("1.20GHz" "1.50GHz" "1.80GHz" "2.10GHz")
+#launch server
+MAXREQS=$((400 * ${QPS}))
+WARMUPREQS=$((50 * ${QPS}))
+echo "--Starting server on ${SERVER_MACHINE}"
+ssh ds318@${SERVER_MACHINE} \
+"taskset -c ${LAUNCH_SERVER_SCRIPT_CORE} ${SCRIPT_HOME}/characterization_scripts/server.sh ${SERVER_THREADS} ${MAXREQS} ${WARMUPREQS}" &	
+	#"sudo taskset -c ${LAUNCH_SERVER_SCRIPT_CORE} ${SCRIPT_HOME}/characterization_scripts/server.sh ${SERVER_THREADS} ${MAXREQS} ${WARMUPREQS} ${SERVER_CORES}" &
+echo $! > server_connection.pid 
+sleep 5s #wait for server to start up
 
-## now loop through the above array
-# for i in "${arr[@]}"
-# do
-#    echo "$i"
-#    # or do whatever with individual element of the array
-# done
+#launch client
+echo "--Starting client on ${CLIENT_MACHINE}" 
+ssh ds318@${CLIENT_MACHINE} \
+"screen -d -m taskset -c ${LAUNCH_CLIENT_SCRIPT_CORE} ${SCRIPT_HOME}/characterization_scripts/client.sh ${QPS} ${CLIENT_THREADS} ${CLIENT_CORES} ${SERVER_MACHINE}" &
 
-# You can access them using echo "${arr[0]}", "${arr[1]}" also
+echo "--Waiting for server..."
+wait $(cat server_connection.pid)
+echo "--QPS = ${QPS} completed"
 
-
-# for CORE_FREQUENCY in "${CORE_FREQUENCYS[@]}"
-# do
-	for QPS in {100..1100..100}
-	do
-		sleep 3s
-		#launch spark worker on server
-		# if ! [ -z ${SPARK_APP} ]
-		# then
-		# 	echo "--starting spark worker on ${SERVER_MACHINE}"
-		# 	ssh ds318@${SERVER_MACHINE} \
-		# 		"${SCRIPT_HOME}/characterization_scripts/launch_spark_worker.sh ${SPARK_CORES} ${CORE_FREQUENCY} $(hostname)"
-		# sleep 5s
-		# fi
-
-		#launch server
-		MAXREQS=$((400 * ${QPS}))
-		WARMUPREQS=$((50 * ${QPS}))
-		echo "--Starting server on ${SERVER_MACHINE}"
-		ssh ds318@${SERVER_MACHINE} \
-			"taskset -c ${LAUNCH_SERVER_SCRIPT_CORE} ${SCRIPT_HOME}/characterization_scripts/server.sh ${SERVER_THREADS} ${MAXREQS} ${WARMUPREQS}" &	
-			#"sudo taskset -c ${LAUNCH_SERVER_SCRIPT_CORE} ${SCRIPT_HOME}/characterization_scripts/server.sh ${SERVER_THREADS} ${MAXREQS} ${WARMUPREQS} ${SERVER_CORES}" &
-		echo $! > server_connection.pid 
-		sleep 5s #wait for server to start up
-
-		#launch client
-		echo "--Starting client on ${CLIENT_MACHINE}" 
-		ssh ds318@${CLIENT_MACHINE} \
-			"screen -d -m taskset -c ${LAUNCH_CLIENT_SCRIPT_CORE} ${SCRIPT_HOME}/characterization_scripts/client.sh ${QPS} ${CLIENT_THREADS} ${CLIENT_CORES} ${SERVER_MACHINE}" &
-
-		#submit spark job
-		# if ! [ -z ${SPARK_APP} ]
-		# then
-		# sleep 3m
-		# echo "--submitting spark job ${SPARK_APP}"
-		# . ${SPARK_SCRIPTS_HOME}/submit_${SPARK_APP}.sh
-		# fi
-
-		echo "--Waiting for server..."
-		wait $(cat server_connection.pid)
-		echo "--QPS = ${QPS} completed"
-	
-		# if ! [ -z ${SPARK_APP} ]
-		# then
-		# 	#kill spark job
-		# 	echo "--killing spark job"
-		# 	${SCRIPT_HOME}/kill_spark_job.sh
-		# 	#kill spark worker on server
-		# 	sleep 5s
-		# 	echo "--stoping spark worker on ${SERVER_MACHINE}"
-		# 	ssh ds318@${SERVER_MACHINE} \
-		# 		"${SCRIPT_HOME}/kill_spark_worker.sh"
-		# 	sleep 5s
-		# fi
-
-		#move data stored on client machine
-
-		sleep 5s #wait for client to dump stats
-		echo "moving data"
-		DATADIR=/home/ds318/data
-		ssh ds318@${CLIENT_MACHINE} \
-			"cp lats.bin ${DATADIR}/t${SERVER_THREADS}q${QPS}.bin"
-	done
-# done
+#move data stored on client machine
+sleep 5s #wait for client to dump stats
+echo "moving data"
+DATADIR=/home/ds318/data
+ssh ds318@${CLIENT_MACHINE} \
+"cp lats.bin ${DATADIR}/t${SERVER_THREADS}q${QPS}.bin"
