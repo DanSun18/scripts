@@ -52,8 +52,7 @@ sleep 5s #wait for server to start up
 #launch client
 echo "--Starting client on ${CLIENT_MACHINE}" 
 ssh ds318@${CLIENT_MACHINE} \
-"screen -d -m taskset -c ${LAUNCH_CLIENT_SCRIPT_CORE} ${SCRIPT_HOME}/characterization_scripts/client.sh ${QPS} ${CLIENT_THREADS} ${CLIENT_CORES} ${SERVER_MACHINE}" &
-
+"screen -d -m -L taskset -c ${LAUNCH_CLIENT_SCRIPT_CORE} ${SCRIPT_HOME}/characterization_scripts/client.sh ${QPS} ${CLIENT_THREADS} ${CLIENT_CORES} ${SERVER_MACHINE}" & # -L for logging info to a file
 echo "--Waiting for server..."
 wait $(cat server_connection.pid)
 echo "--QPS = ${QPS} completed"
@@ -63,4 +62,4 @@ sleep 5s #wait for client to dump stats
 echo "moving data"
 DATADIR=/home/ds318/data
 ssh ds318@${CLIENT_MACHINE} \
-"cp lats.bin ${DATADIR}/t${SERVER_THREADS}q${QPS}.bin"
+"mv lats.bin ${DATADIR}/t${SERVER_THREADS}q${QPS}.bin"
