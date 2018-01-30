@@ -1,5 +1,5 @@
 
-for THREADS in {1..3..2}
+for THREADS in {1..3..1}
 do
 	for QPS in {100..1100..100}
 	do
