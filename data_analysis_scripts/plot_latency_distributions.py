@@ -10,33 +10,36 @@ bin_analysis = BinAnalysis.BinAnalysis()
 
 fig,ax = plt.subplots()
 data_file_number = 0
+
+#configurable 
 percentile = 1
 x_limit = -1
 exclude_percentage = 0
-
+save = False
+figureFilePath = ''
 if '-h' in sys.argv:
 	print '--percentile=percentile'
 	print '--x_limit=xlimit'
 	print '--exclude=front_portion_of_data'
 	exit()
-
-for argument in sys.argv:
+suppliedArguments = list(sys.argv)
+for argument in suppliedArguments:
 	if '--percentile=' in argument:
 		percentile = float((argument.strip().split('='))[1])
 		print 'Plotting up to ' + str(percentile) + " percentile"
-		sys.argv.remove(argument)
 
-for argument in sys.argv:
 	if '--x_limit=' in argument:
 		x_limit = float((argument.strip().split('='))[1])
 		print 'Plotting with x_limit set to ' + str(x_limit)
-		sys.argv.remove(argument)
 
-for argument in sys.argv:
 	if '--exclude=' in argument:
 		exclude_percentage = float((argument.strip().split('='))[1])
 		print 'excluding the first ' + str(exclude_percentage*100)+"% data"
-		sys.argv.remove(argument)
+
+	if '--save' in argument:
+		save = True
+		figureFilePath = helpers.getDir(input_file)+'latency_distribution.jpg'
+		print 'Saving plot to ' + figureFilePath
 
 for input_file in sys.argv[1:]:
 	bin_analysis.readBinFile(input_file)
@@ -65,6 +68,10 @@ if x_limit > 0:
 	ax.set_xlim([0, x_limit])
 ax.set_ylim([0 , percentile])
 plt.legend()
-#plt.show()
-fig.savefig(helpers.getDir(input_file)+'latency_distribution.jpg', dpi=1200)
-plt.close(fig)
+
+if save:
+
+	fig.savefig(figureFilePath, dpi=1200)
+else:
+	plt.show()
+	plt.close(fig)

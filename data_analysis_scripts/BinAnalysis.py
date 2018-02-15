@@ -1,49 +1,68 @@
 #!/usr/bin/python
 import matplotlib.pyplot as plt
 from scipy import stats
+
 class BinAnalysis:
 
 	def __init__(self):
+# deprecated because now will try to match column number with data automatically
+	# 	self.BIN_TYPE_TO_COLUMN_NUMBER = {
+	# 	'id' : 0,
+	# 	'generation_time' : 1,
+	# 	'queue_time' : 2,
+	# 	'service_time' : 3,
+	# 	'latency' : 4,
+	# 	'service_start_time' : 5,
+	# 	'instr_retired' : 6,
+	# 	'socket_read' : 7,
+	# 	'socket_write' : 8,
+	# 	'L3_miss_number' : 9,
+	# 	'L3_hit_rate' : 10,
+	# 	'time_on_server' : 11,
+	# 	'time_request_arrived_on_server' : 12,
+	# 	'worker_thread_core_id' : 13,
+	# 	'L3_occupancy' : 14
+	# }
+		self.BIN_COLUMN_HEADERS = ['id', 'generation_time', 'queue_time', 
+		'service_time', 'latency', 'service_start_time', 'queue_length' ]
+		self.BIN_COLUMN_NUMBER_TO_DATA = {}
+		self.BIN_DATA_TO_COLUMN_NUMBER = {}
 
-		self.BIN_TYPE_TO_COLUMN_NUMBER = {
-		'id' : 0,
-		'generation_time' : 1,
-		'queue_time' : 2,
-		'service_time' : 3,
-		'latency' : 4,
-		'service_start_time' : 5,
-		'instr_retired' : 6,
-		'socket_read' : 7,
-		'socket_write' : 8,
-		'L3_miss_number' : 9,
-		'L3_hit_rate' : 10,
-		'time_on_server' : 11,
-		'time_request_arrived_on_server' : 12,
-		'worker_thread_core_id' : 13,
-		'L3_occupancy' : 14
-	}
-		self.BIN_COLUMN_NUMBER_TO_TYPE = {}
 		self.bin_data = {}
 
-		for type in self.BIN_TYPE_TO_COLUMN_NUMBER.keys():
-			colmun_number = self.BIN_TYPE_TO_COLUMN_NUMBER[type]
-			self.BIN_COLUMN_NUMBER_TO_TYPE[colmun_number] = type	
+		# for type in self.BIN_TYPE_TO_COLUMN_NUMBER.keys():
+		# 	colmun_number = self.BIN_TYPE_TO_COLUMN_NUMBER[type]
+		# 	self.BIN_COLUMN_NUMBER_TO_DATA[colmun_number] = type	
 
 	def createNewKeyListPairInTableIfNotExist(self, key, table):
 		if key not in table:
 			table[key] = []
 
+	def matchHeaderWithColumnNumber(self, headers):
+		for header in headers:
+				for column in range(len(self.BIN_COLUMN_HEADERS)):
+					if self.BIN_COLUMN_HEADERS[column] == header:
+						self.BIN_DATA_TO_COLUMN_NUMBER[header] = column
+						self.BIN_COLUMN_NUMBER_TO_DATA[column] = header
+						break
+
 	def readBinFile(self, filePath):
+		seperator = ' '
 		with open(filePath, 'r') as f:
+			headerLine = f.readline()
+			headers = headerLine.strip().split(seperator)
+
+			self.matchHeaderWithColumnNumber(headers)
+
 			while True:
-				line = f.readline()
-				if line == "":
+				line = f.readline() 
+				if line == "": #EOF
 					break;
-				datas = line.strip().split(' ')
+				datas = line.strip().split(seperator)
 				colmun_number = 0
 				for data in datas:
 					data_float_type = float(data)
-					data_name = self.BIN_COLUMN_NUMBER_TO_TYPE[colmun_number]
+					data_name = self.BIN_COLUMN_NUMBER_TO_DATA[colmun_number]
 					self.createNewKeyListPairInTableIfNotExist(data_name, self.bin_data)
 					self.bin_data[data_name].append(data_float_type)
 					colmun_number += 1
