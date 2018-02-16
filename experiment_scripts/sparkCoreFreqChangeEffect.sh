@@ -27,10 +27,12 @@ if ! [ -d ${SCRIPT_HOME} ]
 	exit 1
 fi
 
-if ! [-d ${SPARK_LOCAL_MODE_HOME} ]
+if ! [ -d ${SPARK_LOCAL_MODE_HOME} ]
 	then 
 	echo "SPARK_LOCAL_MODE_HOME path ${SPARK_LOCAL_MODE_HOME} does not exist"
 	exit 1
+fi
+
 echo "ONLINE_HOME is ${ONLINE_HOME}"
 echo "SCRIPT_HOME is ${SCRIPT_HOME}"
 echo "SPARK_LOCAL_MODE_HOME is ${SPARK_LOCAL_MODE_HOME}"
