@@ -6,8 +6,6 @@
 # Second argument is QPS
 
 source  /home/ds318/scripts/bash_helpers/readPathsConfiguration.sh
-source /home/ds318/scripts/bash_helpers/checkInputs.sh 2 "$#" "SERVER_THREADS, QPS" 
-
 if ! [ -d ${ONLINE_HOME} ]
 	then
 	echo "ONLINE_HOME path ${ONLINE_HOME} does not exist"
@@ -19,6 +17,8 @@ if ! [ -d ${SCRIPT_HOME} ]
 	echo "SCRIPT_HOME path ${SCRIPT_HOME} does not exist"
 	exit 1
 fi
+
+source /home/ds318/scripts/bash_helpers/checkInputs.sh 2 "$#" "SERVER_THREADS, QPS" 
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
