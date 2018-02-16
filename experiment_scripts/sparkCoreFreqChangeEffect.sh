@@ -41,6 +41,7 @@ echo "SPARK_APPLICATION is ${SPARK_APPLICATION}"
 echo "SPARK_CORES is ${SPARK_CORES}"
 ${SPARK_LOCAL_MODE_HOME}/run_${SPARK_APPLICATION}.sh ${SPARK_CORES}
 #wait for 30s
+echo "Waiting for 30 seconds..."
 sleep 30s
 
 #kill spark job
