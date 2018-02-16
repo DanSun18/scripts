@@ -60,6 +60,8 @@ echo $! > server.pid
 echo "Waiting for 6 minutes..."
 sleep 6m
 #change core frequency of batch cores
+#print out current time in file before doing so
+echo $( date +%s ) > frequencyChangedAt.txt
 SECOND_FREQUENCY=1.20GHz
 echo "Changing SPARK_CORES ${SPARK_CORES} to frequency ${SECOND_FREQUENCY}"
 sudo cpupower -c ${SPARK_CORES} frequency-set -f ${SECOND_FREQUENCY}
@@ -69,3 +71,5 @@ wait $(cat server.pid)
 #kill spark job
 echo "Killing spark jobs"
 ${SCRIPT_HOME}/kill_spark_job.sh
+#cleanup
+rm server.pid
