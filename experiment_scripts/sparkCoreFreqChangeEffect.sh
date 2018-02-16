@@ -54,8 +54,9 @@ MAXREQS=$((400 * ${QPS}))
 WARMUPREQS=$((50 * ${QPS}))
 LAUNCH_SERVER_SCRIPT_CORE=4
 #call other script
+SERVER_SCRIPT_PID_FILE="serverScript.pid"
 taskset -c ${LAUNCH_SERVER_SCRIPT_CORE} ${SCRIPT_HOME}/characterization_scripts/server.sh ${SERVER_THREADS} ${MAXREQS} ${WARMUPREQS} &	
-echo $! > server.pid
+echo $! > ${SERVER_SCRIPT_PID_FILE}
 #wait for 6 minutes
 echo "Waiting for 6 minutes..."
 sleep 6m
@@ -66,10 +67,10 @@ SECOND_FREQUENCY=1.20GHz
 echo "Changing SPARK_CORES ${SPARK_CORES} to frequency ${SECOND_FREQUENCY}"
 sudo cpupower -c ${SPARK_CORES} frequency-set -f ${SECOND_FREQUENCY}
 #wait for server
-echo "Waiting for server on process $(cat server.pid) to finish..."
-wait $(cat server.pid)
+echo "Waiting for server on process $(cat ${SERVER_SCRIPT_PID_FILE}) to finish..."
+wait $(cat ${SERVER_SCRIPT_PID_FILE})
 #kill spark job
 echo "Killing spark jobs"
 ${SCRIPT_HOME}/kill_spark_job.sh
 #cleanup
-rm server.pid
+rm ${SERVER_SCRIPT_PID_FILE}

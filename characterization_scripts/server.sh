@@ -44,3 +44,4 @@ echo $! > ${PID_FILE}
 #give priority to server process
 sudo chrt -r -p 99 $(cat ${PID_FILE})
 wait $(cat ${PID_FILE})
+rm ${PID_FILE}
