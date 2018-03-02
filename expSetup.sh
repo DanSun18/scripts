@@ -3,7 +3,7 @@
 #First argument is cpu to turn off, e.g. "1 2 3"
 #Second argument is cpu frequency, e.g. 2.10GHz
 #if arguments are not provided, the default values below will be used
-DEFAULT_CPU_TO_TURNOFF="8 9 10" 
+DEFAULT_CPU_TO_TURNOFF="12 13 14 15" 
 DEFAULT_FREQUENCY=2.10GHz
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SYSTEM_SCRIPT_DIR=${DIR}/system_scripts
