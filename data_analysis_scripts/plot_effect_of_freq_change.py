@@ -10,33 +10,35 @@ import BinAnalysis
 ##################################data structure
 datas = {} 
 ##################################helpers
-# def findThreadsAndQPS(filename):
-# 	actualFileName = filename.strip().split('/')[-1]
-# 	# print actualFileName
-# 	delimiters = 'q', 't', '.'
-# 	regexPattern = '|'.join(map(re.escape, delimiters))
-# 	# print regexPattern
-# 	splitted = re.split(regexPattern, actualFileName)
-# 	# print splitted
-# 	thread = splitted[1]
-# 	qps = splitted[2]
-# 	# print "Thread: ",thread
-# 	# print "Qps: ",qps
-# 	return (thread,qps)
-# def addThreadIntoDataIfNotAlreadyExist(thread):
-# 	if thread not in datas:
-# 		datas[thread] = {}
-# 		datas[thread]['qps'] = []
-# 		datas[thread]['95thLatency'] = []
-# def rearrangeByQps(originalQps, originalLatency, sortedQps, sortedLatency):
-# 	while not len(originalQps) == 0:
-# 		minimumQps = min(originalQps)
-# 		index = originalQps.index(minimumQps)	
-# 		correspondingLatency = originalLatency[index]
-# 		originalQps.remove(minimumQps)
-# 		originalLatency.remove(correspondingLatency)
-# 		sortedQps.append(minimumQps)
-# 		sortedLatency.append(correspondingLatency)	
+def getNameOfFileStoringTimeOfFrequencyChange(binFileName):
+	#remove ".bin" at the end
+	commonPrefix = binFileName[:-4]
+	print "Common prefix is ", commonPrefix
+	#append "_frequencyChangeTime.txt" at the resulting string
+	nameOfFileStoringTimeOfFrequencyChange = commonPrefix + "_frequencyChangeTime.txt"
+	print "Name of file storing frequency change is ", nameOfFileStoringTimeOfFrequencyChange
+	return nameOfFileStoringTimeOfFrequencyChange
+
+def getTimeOfFrequencyChangeFromFile(nameOfFileStoringTimeOfFrequencyChange):
+	timeString = "";
+	timeInt = -1;
+	with open(nameOfFileStoringTimeOfFrequencyChange, 'r') as timeFile:
+		timeString = timeFile.readline();
+		print "frequency changed at (string)", timeString
+	timeInt = int(timeString);
+	print "frequency changed at (int)", timeInt
+	return timeInt
+
+def getTimeOfFrequencyChange(binFileName):
+	nameOfFileStoringTimeOfFrequencyChange = getNameOfFileStoringTimeOfFrequencyChange(binFileName)
+	timeOfFrequencyChange = getTimeOfFrequencyChangeFromFile(nameOfFileStoringTimeOfFrequencyChange)
+	timeOfFrequencyChange = timeOfFrequencyChange * 1e9 #convert from s to ns
+	print "frequency changed at (ns)", timeOfFrequencyChange
+	return timeOfFrequencyChange
+
+def addTimeOfFrequencyChangeAsVerticalLineOnAxis(ax, timeOfFrequencyChange):
+	ax.axvline(x=timeOfFrequencyChange, color='k', linestyle='--')
+
 def plotLatencyVsId(latencyList, idList, inputFile):
 	#plotting
 	fig,ax = plt.subplots()
@@ -46,7 +48,7 @@ def plotLatencyVsId(latencyList, idList, inputFile):
 	fig.suptitle('Latency vs Id')
 	ax.set_xlabel('Id')
 	ax.set_ylabel('Latency')
-
+	# addTimeOfFrequencyChangeAsVerticalLineOnAxis(ax, timeOfFrequencyChange)
 	# if x_limit > 0:
 		# ax.set_xlim([0, x_limit])
 
@@ -61,7 +63,7 @@ def plotLatencyVsId(latencyList, idList, inputFile):
 		plt.show()
 		plt.close(fig)
 
-def plotServiceTimeVsStartTime(ServiceList, startList, inputFile):
+def plotServiceTimeVsStartTime(ServiceList, startList, inputFile, timeOfFrequencyChange):
 	#plotting
 	fig,ax = plt.subplots()
 	linesNumber = 0
@@ -70,7 +72,7 @@ def plotServiceTimeVsStartTime(ServiceList, startList, inputFile):
 	fig.suptitle('Service Time vs Service Start Time')
 	ax.set_xlabel('Service Start Time')
 	ax.set_ylabel('Service Time')
-
+	addTimeOfFrequencyChangeAsVerticalLineOnAxis(ax, timeOfFrequencyChange)
 	# if x_limit > 0:
 		# ax.set_xlim([0, x_limit])
 
@@ -84,12 +86,7 @@ def plotServiceTimeVsStartTime(ServiceList, startList, inputFile):
 	else:
 		plt.show()
 		plt.close(fig)
-######################################
-saving = False
-if '-s' in sys.argv:
-	saving = True
-	sys.argv.remove('-s')
-
+###################################### main function
 bin_analysis = BinAnalysis.BinAnalysis()
 
 #configurable 
@@ -131,6 +128,8 @@ for input_file in sys.argv[1:]:
 	# thread, qps = findThreadsAndQPS(input_file)
 	# addThreadIntoDataIfNotAlreadyExist(thread)
 	bin_analysis.readBinFile(binFile)
+	#get time of frequency change from another file
+	timeOfFrequencyChange = getTimeOfFrequencyChange(binFile);
 	# Get necessary data
 	latencyList = bin_analysis.getList('latency')
 	idList = bin_analysis.getList('id')
@@ -138,7 +137,7 @@ for input_file in sys.argv[1:]:
 	serviceTimeList = bin_analysis.getList('service_time')
 	#plot
 	plotLatencyVsId(latencyList, idList, binFile)
-	plotServiceTimeVsStartTime(serviceTimeList, serviceStartList, binFile)
+	plotServiceTimeVsStartTime(serviceTimeList, serviceStartList, binFile, timeOfFrequencyChange)
 
 	#clear, get ready for next parse
 	bin_analysis.clearData()
