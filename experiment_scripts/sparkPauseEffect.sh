@@ -10,7 +10,7 @@
 # wait for 30 s
 # start moses server while manually starting client on the other machine
 # wait for 6 minutes
-# change batch core frequency to a lower value
+# pause spark processes
 # after tailbench finishes, kill spark job
 
 #get necessary paths
@@ -42,6 +42,8 @@ SPARK_CORES="0-3,8-11"
 echo "SPARK_APPLICATION is ${SPARK_APPLICATION}"
 echo "SPARK_CORES is ${SPARK_CORES}"
 ${SPARK_LOCAL_MODE_HOME}/run_${SPARK_APPLICATION}.sh ${SPARK_CORES}
+SPARK_PID=$(cat spark.pid)
+echo "Spark running as process ${SPARK_PID}"
 #wait for 30s
 echo "Waiting for 30 seconds..."
 sleep 30s
@@ -60,12 +62,11 @@ echo $! > ${SERVER_SCRIPT_PID_FILE}
 #wait for 6 minutes
 echo "Waiting for 6 minutes..."
 sleep 6m
-#change core frequency of batch cores
+#pause spark application
 #print out current time in file before doing so
-echo $( date +%s ) > frequencyChangedAt.txt
-SECOND_FREQUENCY=1.20GHz
-echo "Changing SPARK_CORES ${SPARK_CORES} to frequency ${SECOND_FREQUENCY}"
-sudo cpupower -c ${SPARK_CORES} frequency-set -f ${SECOND_FREQUENCY}
+echo $( date +%s ) > sparkPausedAt.txt
+echo "Pausing process ${SPARK_PID}"
+sudo kill -TSTP ${SPARK_PID}
 #wait for server
 echo "Waiting for server on process $(cat ${SERVER_SCRIPT_PID_FILE}) to finish..."
 wait $(cat ${SERVER_SCRIPT_PID_FILE})
