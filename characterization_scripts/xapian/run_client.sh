@@ -39,10 +39,10 @@ CLIENT_CORES=$3
 SERVER_MACHINE=$4
 
 echo "Summary of arguments:"
-echo -e "\t QPS = {QPS}" 
-echo -e "\t CLIENT_THREADS = {CLIENT_THREADS}" 
-echo -e "\t CLIENT_CORES = {CLIENT_CORES}" 
-echo -e "\t SERVER_MACHINE = {SERVER_MACHINE}"
+echo -e "\t QPS = ${QPS}" 
+echo -e "\t CLIENT_THREADS = ${CLIENT_THREADS}" 
+echo -e "\t CLIENT_CORES = ${CLIENT_CORES}" 
+echo -e "\t SERVER_MACHINE = ${SERVER_MACHINE}"
 
 PID_FILE="xapian_client.pid" #used for store pid of client
 

@@ -25,9 +25,9 @@ SERVER_THREADS=$1
 MAXREQS=$2
 WARMUPREQS=$3
 echo "Summary of arguments:"
-echo -e "\t SERVER_THREADS = {SERVER_THREADS}" 
-echo -e "\t MAXREQS = {MAXREQS}" 
-echo -e "\t WARMUPREQS = {WARMUPREQS}"
+echo -e "\t SERVER_THREADS = ${SERVER_THREADS}" 
+echo -e "\t MAXREQS = ${MAXREQS}" 
+echo -e "\t WARMUPREQS = ${WARMUPREQS}"
 
 PID_FILE="xapian_server.pid" #used for store pid of server
 
