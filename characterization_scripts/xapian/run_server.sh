@@ -40,7 +40,7 @@ CONFIG_FILE_PATH=${XAPIAN_HOME}/../configs.sh
 source ${CONFIG_FILE_PATH}
 echo "SUCCESS: configuration read from ${CONFIG_FILE_PATH}"
 
-LD_LIBRARY_PATH=LD_LIBRARY_PATH:${DIR}/xapian-core-1.2.13/install/lib
+LD_LIBRARY_PATH=LD_LIBRARY_PATH:${XAPIAN_HOME}/xapian-core-1.2.13/install/lib
 export LD_LIBRARY_PATH
 echo "SUCCESS: LD_LIBRARY_PATH updated"
 
