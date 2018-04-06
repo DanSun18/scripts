@@ -38,15 +38,6 @@ def rearrangeByQps(originalQps, originalLatency, sortedQps, sortedLatency):
 		sortedQps.append(minimumQps)
 		sortedLatency.append(correspondingLatency)	
 ######################################
-saving = False
-if '-s' in sys.argv:
-	saving = True
-	sys.argv.remove('-s')
-
-trial = sys.argv[1]
-binPath = trial + '/' + trial + '.bin'
-interval = 50e6 #50ms, converting to ns
-
 bin_analysis = BinAnalysis.BinAnalysis()
 
 #configurable 
