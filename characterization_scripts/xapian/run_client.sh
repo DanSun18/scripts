@@ -63,11 +63,11 @@ NSERVERS=1 # number of servers
 # WARMUPREQS=1000 # not used
 echo "Executing command"
 echo "TBENCH_QPS=${QPS} TBENCH_MINSLEEPNS=100000 TBENCH_SERVER=${SERVER_MACHINE} \
-  TBENCH_TERMS_FILE=${DATA_ROOT}/xapian/terms.in TBENCH_CLIENT_THREADS={CLIENT_THREADS} \
+  TBENCH_TERMS_FILE=${DATA_ROOT}/xapian/terms.in TBENCH_CLIENT_THREADS=${CLIENT_THREADS} \
   taskset -c ${CLIENT_CORES} ${XAPIAN_HOME}/xapian_networked_client &"
 #start running xapian with the given parameters
 TBENCH_QPS=${QPS} TBENCH_MINSLEEPNS=100000 TBENCH_SERVER=${SERVER_MACHINE} \
-  TBENCH_TERMS_FILE=${DATA_ROOT}/xapian/terms.in TBENCH_CLIENT_THREADS={CLIENT_THREADS} \
+  TBENCH_TERMS_FILE=${DATA_ROOT}/xapian/terms.in TBENCH_CLIENT_THREADS=${CLIENT_THREADS} \
   taskset -c ${CLIENT_CORES} ${XAPIAN_HOME}/xapian_networked_client &
 
 #store pid to a file
