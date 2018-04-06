@@ -1,5 +1,5 @@
 # !/bin/bash
-# sparkCoreFreqChangeEffect.sh
+# sparkPauseEffect.sh
 
 # This script runs the experiment to observe how promptly does service
 # or latency time change with a change in batch core frequency running spark 
